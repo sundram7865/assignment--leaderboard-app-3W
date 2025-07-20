@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import UserDropdown from "../users/UserDropdown";
 import { claimPoints } from "@/services/api";
 import { Loader2, Zap } from 'lucide-react';
+import { useLeaderboard } from '@/contexts/LeaderboardContext.jsx';
 
-export default function ClaimPointsCard({ onPointsClaimed, triggerRefresh }) {
+export default function ClaimPointsCard({ onPointsClaimed }) {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
   const [lastPointsWon, setLastPointsWon] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+  const { triggerRefresh } = useLeaderboard(); // Get refresh function from context
 
   const handleClaimPoints = async () => {
     if (!selectedUserId) {
@@ -28,9 +30,8 @@ export default function ClaimPointsCard({ onPointsClaimed, triggerRefresh }) {
       setShowSuccess(true);
       
       if (onPointsClaimed) onPointsClaimed(result);
-      if (triggerRefresh) triggerRefresh(); // Trigger leaderboard refresh
+      triggerRefresh(); // Use context refresh instead of prop
       
-      // Reset success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to claim points');

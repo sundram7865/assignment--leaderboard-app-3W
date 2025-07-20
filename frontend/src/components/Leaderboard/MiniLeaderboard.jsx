@@ -5,12 +5,14 @@ import RankBadge from "./RankBadge";
 import { useEffect, useState } from "react";
 import { fetchTopUsers } from "@/services/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLeaderboard } from "@/contexts/LeaderboardContext.jsx";
 
-export default function MiniLeaderboard({ refreshFlag }) {  // Add refreshFlag prop
+export default function MiniLeaderboard() {
   const navigate = useNavigate();
   const [topPlayers, setTopPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { refreshTrigger } = useLeaderboard(); // Get refresh trigger from context
 
   useEffect(() => {
     const loadTopPlayers = async () => {
@@ -31,7 +33,7 @@ export default function MiniLeaderboard({ refreshFlag }) {  // Add refreshFlag p
     };
 
     loadTopPlayers();
-  }, [refreshFlag]);  // Add refreshFlag as dependency
+  }, [refreshTrigger]); // Use context refreshTrigger instead of prop
 
   return (
     <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-0 shadow-lg">
