@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { fetchTopUsers } from '@/services/api';
 import LeaderboardItem from './LeaderboardItem';
 import { Crown, Trophy, Award, Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
@@ -28,6 +29,11 @@ export default function Leaderboard() {
   // Separate top 3 and the rest
   const topThree = leaderboard.slice(0, 3);
   const remainingPlayers = leaderboard.slice(3);
+  const navigate = useNavigate();
+
+const handleViewHistory = () => {
+  navigate('/history');
+};
 
   return (
     <section className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
@@ -42,9 +48,13 @@ export default function Leaderboard() {
               </h2>
               <p className="text-indigo-100 text-sm mt-1">Updated just now</p>
             </div>
-            <button className="px-4 py-2 text-xs font-medium text-white bg-white/20 rounded-lg backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all">
-              View History
-            </button>
+            <button 
+  onClick={handleViewHistory}
+  className="px-4 py-2 text-xs font-medium text-white bg-white/20 rounded-lg backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all"
+>
+  View History
+</button>
+
           </div>
         </div>
       </div>
