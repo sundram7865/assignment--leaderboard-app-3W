@@ -1,28 +1,63 @@
-export default function UserForm({ onSubmit }) {
-  const [name, setName] = React.useState('')
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { createUser } from '@/services/api';
+import { Loader2 } from 'lucide-react';
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    onSubmit({ name })
-    setName('')
-  }
+export default function UserForm({ onUserAdded }) {
+  const [name, setName] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    
+    if (!name.trim()) {
+      setError('Please enter a valid name');
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const newUser = await createUser(name.trim());
+      setName('');
+      if (onUserAdded) onUserAdded(newUser);
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to create user');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Name</label>
-        <input
-          type="text"
+      <div className="space-y-2">
+        <Label htmlFor="name">Name</Label>
+        <Input
           id="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+          placeholder="Enter user name"
+          disabled={isSubmitting}
           required
         />
+        {error && <p className="text-sm text-red-500">{error}</p>}
       </div>
-      <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
-        Add User
-      </button>
+      <Button 
+        type="submit" 
+        disabled={isSubmitting || !name.trim()}
+        className="w-full"
+      >
+        {isSubmitting ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating...
+          </>
+        ) : 'Add User'}
+      </Button>
     </form>
-  )
+  );
 }
