@@ -1,8 +1,10 @@
 import React from 'react'
-
+import Header from './components/Header'
 const App = () => {
   return (
-    <div className='text-3xl'>TEXT3-XL</div>
+    <div className="min-h-screen bg-gray-100 text-gray-800">
+         <Header />
+    </div>
   )
 }
 export default App;
