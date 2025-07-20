@@ -3,8 +3,9 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import UserDropdown from "../users/UserDropdown";
 import { claimPoints } from "@/services/api";
-import { Loader2, Zap } from 'lucide-react';
-import { useLeaderboard } from '@/contexts/LeaderboardContext.jsx';
+import { Loader2, Zap, CheckCircle } from 'lucide-react';
+import { useLeaderboard } from '@/contexts/LeaderboardContext';
+import { motion } from 'framer-motion';
 
 export default function ClaimPointsCard({ onPointsClaimed }) {
   const [selectedUserId, setSelectedUserId] = useState('');
@@ -12,7 +13,7 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
   const [error, setError] = useState('');
   const [lastPointsWon, setLastPointsWon] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
-  const { triggerRefresh } = useLeaderboard(); // Get refresh function from context
+  const { triggerRefresh, addActivity } = useLeaderboard();
 
   const handleClaimPoints = async () => {
     if (!selectedUserId) {
@@ -26,11 +27,19 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
 
     try {
       const result = await claimPoints(selectedUserId);
-      setLastPointsWon(result.data.points);
+      const points = result.data.points;
+      
+      setLastPointsWon(points);
       setShowSuccess(true);
       
+      // Add to activity feed
+      addActivity({
+        user: selectedUserId,
+        action: `claimed ${points} points`
+      });
+      
       if (onPointsClaimed) onPointsClaimed(result);
-      triggerRefresh(); // Use context refresh instead of prop
+      triggerRefresh();
       
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
@@ -41,10 +50,23 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
   };
 
   return (
-    <Card>
+    <Card className="relative overflow-hidden">
+      {/* Animated success background */}
+      {showSuccess && (
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.1 }}
+          className="absolute inset-0 bg-green-500"
+        />
+      )}
+      
       <CardHeader>
-        <CardTitle>Claim Your Points</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Zap className="h-5 w-5 text-yellow-500" />
+          <span>Claim Your Points</span>
+        </CardTitle>
       </CardHeader>
+      
       <CardContent className="space-y-4">
         <UserDropdown 
           selectedUser={selectedUserId}
@@ -54,7 +76,8 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
         <Button 
           onClick={handleClaimPoints}
           disabled={isClaiming || !selectedUserId}
-          className="w-full"
+          className="w-full transition-all"
+          size="lg"
         >
           {isClaiming ? (
             <>
@@ -70,15 +93,28 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
         </Button>
         
         {error && (
-          <p className="text-sm text-red-500 text-center">{error}</p>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm text-red-500 text-center p-2 bg-red-50 rounded-md"
+          >
+            {error}
+          </motion.div>
         )}
         
         {showSuccess && lastPointsWon && (
-          <div className="text-center animate-pulse">
-            <p className="text-sm font-medium text-green-600">
-              Success! Awarded {lastPointsWon} points!
-            </p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center p-3 bg-green-50 rounded-md"
+          >
+            <div className="flex items-center justify-center gap-2 text-green-600">
+              <CheckCircle className="h-5 w-5" />
+              <span className="font-medium">
+                Awarded {lastPointsWon} points!
+              </span>
+            </div>
+          </motion.div>
         )}
         
         <p className="text-sm text-muted-foreground text-center">

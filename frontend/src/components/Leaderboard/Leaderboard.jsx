@@ -12,7 +12,7 @@ export default function Leaderboard() {
     const loadLeaderboard = async () => {
       try {
         setLoading(true);
-        const response = await fetchTopUsers(15); // Fetch top 15 users
+        const response = await fetchTopUsers(20); // Fetch top 15 users
         setLeaderboard(response.data || []);
       } catch (err) {
         setError('Failed to load leaderboard');
