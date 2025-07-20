@@ -1,24 +1,24 @@
-// src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './components/layout/Layout';
-import HomePage from './pages/HomePage';
-import LeaderboardPage from './pages/LeaderboardPage';
-import UserProfilePage from './pages/UserProfilePage';
-import PointsHistoryPage from './pages/PointsHistoryPage';
-import NotFoundPage from './pages/NotFoundPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import HomePage from './pages/HomePage'
+import LeaderboardPage from './pages/LeaderboardPage'
+import UsersPage from './pages/UsersPage'
+import Header from './components/layout/Header'
+import Footer from './components/layout/Footer'
 
 export default function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="leaderboard" element={<LeaderboardPage />} />
-          <Route path="profile/:userId" element={<UserProfilePage />} />
-          <Route path="history" element={<PointsHistoryPage />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow container mx-auto px-4 py-8">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/users" element={<UsersPage />} />
+          </Routes>
+        </main>
+        <Footer />
+      </div>
     </Router>
-  );
+  )
 }

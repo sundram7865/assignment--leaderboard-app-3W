@@ -147,3 +147,16 @@
   background: #c1c1c1;
   border-radius: 3px;
 }
+/* Add this if you want a fallback for the noise texture */
+@supports not (background-image: url('data:image/svg+xml')) {
+  .noise-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.03) 0%,
+      rgba(255, 255, 255, 0.05) 100%
+    );
+  }
+}
