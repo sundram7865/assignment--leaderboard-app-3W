@@ -1,6 +1,6 @@
 import React from 'react'
 import Header from './components/layout/Header'
-import Leaderboard from './components/Leaderboard'
+import Leaderboard from './components/Leaderboard/Leaderboard'
 const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800">
