@@ -28,12 +28,12 @@ export default function Header() {
             </div>
             <div className="relative">
               <div className="absolute -inset-1.5 bg-white/30 rounded-lg blur opacity-75 animate-pulse"></div>
-              <Link 
-                to="/history" 
-                className="relative px-4 py-2 text-sm font-medium text-white bg-white/10 rounded-lg backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-200"
-              >
-                View History
-              </Link>
+               <Link 
+    to="/add-user"
+    className="relative px-4 py-2 text-sm font-medium text-white bg-green-500/80 hover:bg-green-500 rounded-lg backdrop-blur-sm border border-white/20 transition-all duration-200"
+  >
+    + Add User
+  </Link>
             </div>
           </div>
         </div>

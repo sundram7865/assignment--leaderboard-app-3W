@@ -4,7 +4,7 @@ import LeaderboardPage from './pages/LeaderboardPage'
 import UsersPage from './pages/UsersPage'
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
-
+import AddUserPage from './pages/AddUserPage';
 export default function App() {
   return (
     <Router>
@@ -15,6 +15,7 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/users" element={<UsersPage />} />
+            <Route path="/add-user" element={<AddUserPage />} />
           </Routes>
         </main>
         <Footer />
