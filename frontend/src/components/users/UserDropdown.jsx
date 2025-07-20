@@ -1,14 +1,28 @@
-export default function UserDropdown({ users, selectedUser, onSelect }) {
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+export default function UserDropdown({ 
+  users = [], 
+  selectedUser = "", 
+  onSelect = () => {} 
+}) {
   return (
-    <select
-      value={selectedUser}
-      onChange={(e) => onSelect(e.target.value)}
-      className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-    >
-      <option value="">Select a user</option>
-      {users.map(user => (
-        <option key={user.id} value={user.id}>{user.name}</option>
-      ))}
-    </select>
-  )
+    <Select value={selectedUser} onValueChange={onSelect}>
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a user" />
+      </SelectTrigger>
+      <SelectContent>
+        {users?.length > 0 ? (
+          users.map(user => (
+            <SelectItem key={user.id} value={user.id}>
+              {user.name}
+            </SelectItem>
+          ))
+        ) : (
+          <SelectItem disabled value="no-users">
+            No users available
+          </SelectItem>
+        )}
+      </SelectContent>
+    </Select>
+  );
 }
