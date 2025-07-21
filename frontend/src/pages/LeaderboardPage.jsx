@@ -1,6 +1,6 @@
 // src/pages/LeaderboardPage.jsx
-import Leaderboard from '../components/leaderboard/Leaderboard';
-import LeaderFilter from '../components/leaderboard/LeaderFilter';
+import Leaderboard from '../components/Leaderboard/Leaderboard';
+import LeaderFilter from '../components/Leaderboard/LeaderFilter';
 
 export default function LeaderboardPage() {
   return (
