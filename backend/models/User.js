@@ -15,6 +15,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  lastClaimedAt: {
+  type: Date,
+  default: null}
+  ,
   avatar: {
     type: String,
     default: '' // Optional: You can also set a default avatar URL here

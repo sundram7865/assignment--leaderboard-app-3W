@@ -2,73 +2,88 @@ import User from '../models/User.js';
 import PointsHistory from '../models/PointsHistory.js';
 import mongoose from 'mongoose';
 
-// Claim random points (1-10) with transaction support
 export const claimPoints = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
-  
+
   try {
     const { userId } = req.body;
 
-    // Validate userId
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
         error: 'Invalid User ID',
-        message: 'Please provide a valid user ID'
+        message: 'Please provide a valid user ID',
       });
     }
 
-    // Generate random points (1-10)
     const points = Math.floor(Math.random() * 10) + 1;
 
-    // Update user's total points
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $inc: { totalPoints: points } },
-      { new: true, session }
-    ).select('-__v');
+    const user = await User.findById(userId).session(session);
 
     if (!user) {
       return res.status(404).json({
         success: false,
         error: 'Not Found',
-        message: 'User not found'
+        message: 'User not found',
       });
     }
 
-    // Create points history record
-    const historyRecord = await PointsHistory.create([{
-      userId,
-      points,
-      claimedAt: new Date()
-    }], { session });
+    // Streak logic
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+
+    const lastClaimDate = user.lastClaimDate ? new Date(user.lastClaimDate) : null;
+    let streak = user.streak || 0;
+
+    if (!lastClaimDate || lastClaimDate.toDateString() !== today.toDateString()) {
+      if (lastClaimDate && lastClaimDate.toDateString() === yesterday.toDateString()) {
+        // Claimed yesterday — continue streak
+        streak += 1;
+      } else {
+        // Missed a day or first claim — reset streak
+        streak = 1;
+      }
+    }
+
+    // Update user
+    user.totalPoints += points;
+    user.streak = streak;
+    user.lastClaimDate = today;
+    await user.save({ session });
+
+    const historyRecord = await PointsHistory.create(
+      [
+        {
+          userId,
+          points,
+          claimedAt: today,
+        },
+      ],
+      { session }
+    );
 
     await session.commitTransaction();
-    
     res.status(200).json({
       success: true,
       data: {
-        user,
+        user: {
+          _id: user._id,
+          name: user.name,
+          totalPoints: user.totalPoints,
+          streak: user.streak,
+        },
         points,
-        historyId: historyRecord[0]._id
-      }
+        historyId: historyRecord[0]._id,
+      },
     });
   } catch (err) {
     await session.abortTransaction();
-    
-    if (err.name === 'ValidationError') {
-      return res.status(400).json({
-        success: false,
-        error: 'Validation Error',
-        message: err.message
-      });
-    }
-    
     res.status(500).json({
       success: false,
       error: 'Server Error',
-      message: err.message
+      message: err.message,
     });
   } finally {
     session.endSession();
@@ -83,13 +98,13 @@ export const getPointsHistory = async (req, res) => {
     const skip = (page - 1) * limit;
 
     if (userId !== 'all' && !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(400).json({ 
+      return res.status(400).json({
         success: false,
-        message: 'Invalid user ID format' 
+        message: 'Invalid user ID format',
       });
     }
 
-    const query = userId === 'all' ? {} : { user: userId };
+    const query = userId === 'all' ? {} : { userId };
 
     const [history, total] = await Promise.all([
       PointsHistory.find(query)
@@ -98,9 +113,9 @@ export const getPointsHistory = async (req, res) => {
         .limit(limit)
         .populate({
           path: 'userId',
-          select: 'name ', // populate necessary fields
+          select: 'name',
         }),
-      PointsHistory.countDocuments(query)
+      PointsHistory.countDocuments(query),
     ]);
 
     res.status(200).json({
@@ -111,16 +126,16 @@ export const getPointsHistory = async (req, res) => {
           total,
           page,
           limit,
-          totalPages: Math.ceil(total / limit)
-        }
-      }
+          totalPages: Math.ceil(total / limit),
+        },
+      },
     });
   } catch (error) {
     console.error('Error fetching points history:', error);
-    res.status(500).json({ 
+    res.status(500).json({
       success: false,
       message: 'Failed to fetch points history',
-      error: error.message 
+      error: error.message,
     });
   }
 };

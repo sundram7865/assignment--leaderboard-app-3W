@@ -3,8 +3,7 @@ import RankBadge from './RankBadge';
 export default function LeaderboardItem({ user, rank }) {
   const score = user.totalPoints || user.score || 0;
   const name = user.name || `Player ${rank}`;
-  const avatar = user.avatar; // real avatar from backend if available
-  const fallbackAvatar = name.charAt(0).toUpperCase();
+  const avatarUrl = user.avatar || `https://api.dicebear.com/8.x/adventurer/svg?seed=${name}`;
   const streak = user.streak || 0;
 
   const statusBadge = () => {
@@ -20,21 +19,11 @@ export default function LeaderboardItem({ user, rank }) {
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center group cursor-pointer">
-          {avatar ? (
-            <img
-              src={avatar}
-              alt={name}
-              className="h-10 w-10 rounded-full shadow-md transition-transform duration-200 group-hover:scale-110"
-              title={name}
-            />
-          ) : (
-            <div
-              className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white font-semibold flex items-center justify-center shadow transition-transform duration-200 group-hover:scale-110"
-              title={name}
-            >
-              {fallbackAvatar}
-            </div>
-          )}
+          <img
+            src={avatarUrl}
+            alt={name}
+            className="h-10 w-10 rounded-full border-2 border-gray-300 shadow transition-transform duration-200 group-hover:scale-110"
+          />
           <div className="ml-4">
             <div className="text-sm font-medium text-gray-900">{name}</div>
             <div className="text-xs text-gray-500">Level {Math.floor(score / 50) + 1}</div>
