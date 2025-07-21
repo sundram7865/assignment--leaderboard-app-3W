@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
-import ClaimPointsCard from '../components/points/ClaimPointsCard';
-import MiniLeaderboard from '../components/leaderboard/MiniLeaderboard';
+import ClaimPointsCard from '../components/Points/ClaimPointsCard';
+import MiniLeaderboard from '../components/Leaderboard/MiniLeaderboard';
 import RecentActivity from '../components/activity/RecentActivity';
 
 export default function HomePage() {
