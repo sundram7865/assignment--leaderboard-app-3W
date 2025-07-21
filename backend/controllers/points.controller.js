@@ -1,7 +1,14 @@
+// controllers/pointsController.js
+
 import User from '../models/User.js';
 import PointsHistory from '../models/PointsHistory.js';
 import mongoose from 'mongoose';
 
+/**
+ * @desc Claim daily points for a user
+ * @route POST /api/points/claim
+ * @access Public (or Protected based on your middleware)
+ */
 export const claimPoints = async (req, res) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -9,6 +16,7 @@ export const claimPoints = async (req, res) => {
   try {
     const { userId } = req.body;
 
+    // Validate user ID format
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
@@ -17,10 +25,11 @@ export const claimPoints = async (req, res) => {
       });
     }
 
+    // Random point generation between 1 and 10
     const points = Math.floor(Math.random() * 10) + 1;
 
+    // Fetch the user with session for transaction safety
     const user = await User.findById(userId).session(session);
-
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -29,7 +38,7 @@ export const claimPoints = async (req, res) => {
       });
     }
 
-    // Streak logic
+    // ------------------- STREAK LOGIC ------------------- //
     const today = new Date();
     const yesterday = new Date();
     yesterday.setDate(today.getDate() - 1);
@@ -37,22 +46,22 @@ export const claimPoints = async (req, res) => {
     const lastClaimDate = user.lastClaimDate ? new Date(user.lastClaimDate) : null;
     let streak = user.streak || 0;
 
+    // Determine if user claimed yesterday or missed a day
     if (!lastClaimDate || lastClaimDate.toDateString() !== today.toDateString()) {
       if (lastClaimDate && lastClaimDate.toDateString() === yesterday.toDateString()) {
-        // Claimed yesterday — continue streak
-        streak += 1;
+        streak += 1; // Continue streak
       } else {
-        // Missed a day or first claim — reset streak
-        streak = 1;
+        streak = 1; // Start new streak
       }
     }
 
-    // Update user
+    // Update user data
     user.totalPoints += points;
     user.streak = streak;
     user.lastClaimDate = today;
     await user.save({ session });
 
+    // Record points history
     const historyRecord = await PointsHistory.create(
       [
         {
@@ -65,6 +74,8 @@ export const claimPoints = async (req, res) => {
     );
 
     await session.commitTransaction();
+
+    // Response with updated user and claimed points
     res.status(200).json({
       success: true,
       data: {
@@ -79,6 +90,7 @@ export const claimPoints = async (req, res) => {
       },
     });
   } catch (err) {
+    // Rollback transaction on error
     await session.abortTransaction();
     res.status(500).json({
       success: false,
@@ -86,10 +98,15 @@ export const claimPoints = async (req, res) => {
       message: err.message,
     });
   } finally {
-    session.endSession();
+    session.endSession(); // Always end session
   }
 };
 
+/**
+ * @desc Fetch points claim history for a user (or all users)
+ * @route GET /api/points/history/:userId?page=&limit=
+ * @access Public (or Protected based on your middleware)
+ */
 export const getPointsHistory = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -97,6 +114,7 @@ export const getPointsHistory = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
+    // Validate user ID unless fetching for all
     if (userId !== 'all' && !mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(400).json({
         success: false,
@@ -104,20 +122,23 @@ export const getPointsHistory = async (req, res) => {
       });
     }
 
+    // Build query dynamically based on userId
     const query = userId === 'all' ? {} : { userId };
 
+    // Fetch history with pagination
     const [history, total] = await Promise.all([
       PointsHistory.find(query)
-        .sort({ claimedAt: -1 })
+        .sort({ claimedAt: -1 }) // Latest first
         .skip(skip)
         .limit(limit)
         .populate({
           path: 'userId',
-          select: 'name',
+          select: 'name', // Only return name from user
         }),
       PointsHistory.countDocuments(query),
     ]);
 
+    // Send paginated response
     res.status(200).json({
       success: true,
       data: {
