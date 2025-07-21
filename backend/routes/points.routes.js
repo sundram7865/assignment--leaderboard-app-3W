@@ -5,5 +5,7 @@ const router = express.Router();
 
 router.post('/claim', claimPoints);
 router.get('/history/:userId', getPointsHistory);
+ 
+
 
 export default router;

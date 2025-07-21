@@ -12,7 +12,7 @@ export const createUser = (name) => API.post('/api/users', { name });
 
 // Points API
 export const claimPoints = (userId) => API.post('/api/points/claim', { userId });
-export const fetchPointsHistory = (userId, page = 1, limit = 10) => {
+export const fetchPointsHistory = (userId='all', page = 1, limit = 10) => {
   return API.get(`/api/points/history/${userId}`, { params: { page, limit } });
 };
 
