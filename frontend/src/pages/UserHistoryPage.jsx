@@ -176,14 +176,14 @@ const PointsHistory = () => {
                               <Box display="flex" alignItems="center">
                                 <Tooltip title={record.userId?.name || 'Unknown User'}>
                                   <Avatar 
+                                    src={`https://api.dicebear.com/8.x/adventurer/svg?seed=${record.userId?.name || 'unknown'}`}
                                     sx={{ 
                                       mr: 2,
-                                      background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
-                                      color: 'white'
+                                      width: 40,
+                                      height: 40,
+                                      border: `2px solid ${theme.palette.primary.main}`
                                     }}
-                                  >
-                                    {record.userId?.name?.[0]?.toUpperCase() || '?'}
-                                  </Avatar>
+                                  />
                                 </Tooltip>
                                 <Typography variant="body1" fontWeight={500}>
                                   {record.userId?.name || 'Unknown User'}
