@@ -48,12 +48,14 @@ const handleViewHistory = () => {
               </h2>
               <p className="text-indigo-100 text-sm mt-1">Updated just now</p>
             </div>
-            <button 
+           <button 
   onClick={handleViewHistory}
-  className="px-4 py-2 text-xs font-medium text-white bg-white/20 rounded-lg backdrop-blur-sm border border-white/30 hover:bg-white/30 transition-all"
+  className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg backdrop-blur-md border border-white/30 hover:from-blue-500/40 hover:to-purple-500/40 hover:shadow-md hover:scale-105 cursor-pointer transition-all duration-300 ease-in-out"
 >
   View History
 </button>
+
+
 
           </div>
         </div>
@@ -163,12 +165,7 @@ const handleViewHistory = () => {
         <p className="text-xs text-gray-500">
           Showing {leaderboard.length} of {leaderboard.length} players
         </p>
-        <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all">
-          Export Results
-          <svg className="ml-2 -mr-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-          </svg>
-        </button>
+        
       </div>
     </section>
   );

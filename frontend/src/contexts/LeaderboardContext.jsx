@@ -13,7 +13,7 @@ export function LeaderboardProvider({ children }) {
       try {
         const response = await fetch('/api/users'); // Adjust your API endpoint
         const data = await response.json();
-        console.log("Fetched users response:", data);
+        
 
         const usersArray = data.data; // <-- FIX: access the actual user array
 

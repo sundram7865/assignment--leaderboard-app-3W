@@ -11,6 +11,14 @@ const userSchema = new mongoose.Schema({
     type: Number, 
     default: 0 
   },
+  streak: {
+    type: Number,
+    default: 0
+  },
+  avatar: {
+    type: String,
+    default: '' // Optional: You can also set a default avatar URL here
+  },
   createdAt: { 
     type: Date, 
     default: Date.now 

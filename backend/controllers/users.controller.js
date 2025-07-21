@@ -28,7 +28,7 @@ export const getTopUsers = async (req, res) => {
     const users = await User.find()
       .sort({ totalPoints: -1 })
       .limit(limit)
-      .select('name totalPoints avatar'); // Only include essential fields
+      .select('name totalPoints avatar streak'); // ← fixed
 
     res.status(200).json({
       success: true,
@@ -67,10 +67,11 @@ export const createUser = async (req, res) => {
         message: 'User with this name already exists'
       });
     }
-
+const avatarUrl = `https://api.dicebear.com/6.x/pixel-art/svg?seed=${encodeURIComponent(name.trim())}`;
     const newUser = await User.create({ 
       name: name.trim(),
-      totalPoints: 0 // Initialize with 0 points
+      totalPoints: 0 ,
+      avatar: avatarUrl// Initialize with 0 points
     });
 
     res.status(201).json({

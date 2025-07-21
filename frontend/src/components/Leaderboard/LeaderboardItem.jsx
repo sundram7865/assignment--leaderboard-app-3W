@@ -1,10 +1,10 @@
 import RankBadge from './RankBadge';
 
-export default function LeaderboardItem({ user, rank }) {  // Changed from index to rank
-  // Safely access properties with fallbacks
+export default function LeaderboardItem({ user, rank }) {
   const score = user.totalPoints || user.score || 0;
   const name = user.name || `Player ${rank}`;
-  const avatar = user.avatar || name.charAt(0).toUpperCase();
+  const avatar = user.avatar; // real avatar from backend if available
+  const fallbackAvatar = name.charAt(0).toUpperCase();
   const streak = user.streak || 0;
 
   const statusBadge = () => {
@@ -16,22 +16,34 @@ export default function LeaderboardItem({ user, rank }) {  // Changed from index
   return (
     <tr className="hover:bg-white/80 transition-all duration-200 even:bg-gray-50/50">
       <td className="px-6 py-4 whitespace-nowrap">
-        <RankBadge rank={rank} />  {/* Use rank instead of index */}
+        <RankBadge rank={rank} />
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-white rounded-full shadow-sm text-xl border border-gray-200">
-            {avatar}
-          </div>
+        <div className="flex items-center group cursor-pointer">
+          {avatar ? (
+            <img
+              src={avatar}
+              alt={name}
+              className="h-10 w-10 rounded-full shadow-md transition-transform duration-200 group-hover:scale-110"
+              title={name}
+            />
+          ) : (
+            <div
+              className="h-10 w-10 rounded-full bg-gradient-to-br from-pink-500 to-purple-500 text-white font-semibold flex items-center justify-center shadow transition-transform duration-200 group-hover:scale-110"
+              title={name}
+            >
+              {fallbackAvatar}
+            </div>
+          )}
           <div className="ml-4">
             <div className="text-sm font-medium text-gray-900">{name}</div>
-            <div className="text-xs text-gray-500">Level {Math.floor(score/50) + 1}</div>
+            <div className="text-xs text-gray-500">Level {Math.floor(score / 50) + 1}</div>
           </div>
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-bold text-gray-900 font-mono">
-          {score.toLocaleString()}  {/* Formatted number */}
+          {score.toLocaleString()}
         </div>
       </td>
       <td className="px-6 py-4 whitespace-nowrap">

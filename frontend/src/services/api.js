@@ -1,22 +1,26 @@
 import axios from 'axios';
 
 const API = axios.create({
-  baseURL: 'http://localhost:5000/api', // Correct base URL
-  timeout: 5000, // Recommended timeout
+  baseURL: 'http://localhost:5000/api',
+  timeout: 5000,
 });
 
-// Users API - Note the '/users' prefix is already in baseURL
-export const fetchUsers = () => API.get('/users'); // Correct (calls /api/users)
-export const fetchTopUsers = (limit = 5) => API.get('/users/top', { params: { limit } }); // Better parameter handling
-export const createUser = (name) => API.post('/users', { name }); // Correct
+// Users API
+export const fetchUsers = () => API.get('/users');
+export const fetchTopUsers = (limit = 5) => API.get('/users/top', { params: { limit } });
+export const createUser = (name) => API.post('/users', { name });
 
-// Points API - Must include full path since baseURL is /api
-export const claimPoints = (userId) => API.post('/points/claim', { userId }); // Will call /api/points/claim
-export const fetchPointsHistory = (userId) => API.get(`/points/history/${userId}`); // Will call /api/points/history/:userId
+// Points API
+export const claimPoints = (userId) => API.post('/points/claim', { userId });
+export const fetchPointsHistory = (userId, page = 1, limit = 10) => {
+  
+  return API.get(`/points/history/${userId}`, { params: { page, limit } });
+};
 
-// Add response interceptor for consistent error handling
+
+// Global error handler
 API.interceptors.response.use(
-  response => response.data, // Directly return the data
+  response => response.data,
   error => {
     console.error('API Error:', error.response?.data || error.message);
     return Promise.reject(error.response?.data || error.message);
