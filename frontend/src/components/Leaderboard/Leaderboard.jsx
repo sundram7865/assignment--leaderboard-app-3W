@@ -1,19 +1,21 @@
 import { useEffect, useState } from 'react';
 import { fetchTopUsers } from '@/services/api';
 import LeaderboardItem from './LeaderboardItem';
-import { Crown, Trophy, Award, Zap } from 'lucide-react';
+import { Crown, Trophy, Award } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Leaderboard() {
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
+  // Fetch leaderboard data on component mount
   useEffect(() => {
     const loadLeaderboard = async () => {
       try {
         setLoading(true);
-        const response = await fetchTopUsers(20); // Fetch top 15 users
+        const response = await fetchTopUsers(20); // Fetch top 20 users
         setLeaderboard(response.data || []);
       } catch (err) {
         setError('Failed to load leaderboard');
@@ -26,42 +28,41 @@ export default function Leaderboard() {
     loadLeaderboard();
   }, []);
 
-  // Separate top 3 and the rest
+  const handleViewHistory = () => {
+    navigate('/history');
+  };
+
+  // Slice the leaderboard into top 3 and remaining users
   const topThree = leaderboard.slice(0, 3);
   const remainingPlayers = leaderboard.slice(3);
-  const navigate = useNavigate();
-
-const handleViewHistory = () => {
-  navigate('/history');
-};
 
   return (
     <section className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-      {/* Header with glass effect */}
+      {/* Header with gradient background and glass effect */}
       <div className="p-6 bg-gradient-to-r from-indigo-600 to-purple-700 relative overflow-hidden">
         <div className="absolute inset-0 bg-noise opacity-10" />
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-white flex items-center">
-                <Trophy className="mr-3 h-6 w-6" /> Current Leaderboard
+                <Trophy className="mr-3 h-6 w-6" />
+                Current Leaderboard
               </h2>
               <p className="text-indigo-100 text-sm mt-1">Updated just now</p>
             </div>
-           <button 
-  onClick={handleViewHistory}
-  className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg backdrop-blur-md border border-white/30 hover:from-blue-500/40 hover:to-purple-500/40 hover:shadow-md hover:scale-105 cursor-pointer transition-all duration-300 ease-in-out"
->
-  View History
-</button>
 
-
-
+            {/* View History Button with hover effects */}
+            <button 
+              onClick={handleViewHistory}
+              className="px-4 py-2 text-xs font-medium text-white bg-gradient-to-r from-blue-500/20 to-purple-500/20 rounded-lg backdrop-blur-md border border-white/30 hover:from-blue-500/40 hover:to-purple-500/40 hover:shadow-md hover:scale-105 cursor-pointer transition-all duration-300 ease-in-out"
+            >
+              View History
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Top 3 Podium */}
+      {/* Top 3 Podium Section */}
       {topThree.length > 0 && (
         <div className="px-6 py-4 bg-gradient-to-b from-indigo-50 to-purple-50">
           <div className="flex justify-center items-end space-x-4 h-48">
@@ -110,29 +111,24 @@ const handleViewHistory = () => {
         </div>
       )}
 
-      {/* Main Table */}
+      {/* Main Leaderboard Table */}
       <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
         <table className="w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Rank
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Player
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Score
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Streak
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
+              {['Rank', 'Player', 'Score', 'Streak', 'Status'].map((heading) => (
+                <th
+                  key={heading}
+                  scope="col"
+                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {heading}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
+            {/* Loader */}
             {loading ? (
               <tr>
                 <td colSpan="5" className="px-6 py-4 text-center">
@@ -148,24 +144,24 @@ const handleViewHistory = () => {
                 </td>
               </tr>
             ) : (
+              // Render remaining players after top 3
               remainingPlayers.map((user, index) => (
                 <LeaderboardItem 
-    key={user._id} 
-    user={user} 
-    rank={index + 4}  // Pass rank explicitly
-  />
+                  key={user._id} 
+                  user={user} 
+                  rank={index + 4} // Since top 3 already shown
+                />
               ))
             )}
           </tbody>
         </table>
       </div>
 
-      {/* Footer */}
+      {/* Footer Summary */}
       <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-between items-center">
         <p className="text-xs text-gray-500">
           Showing {leaderboard.length} of {leaderboard.length} players
         </p>
-        
       </div>
     </section>
   );

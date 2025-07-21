@@ -5,19 +5,24 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getPointsHistory } from "@/services/api";
 import { format } from 'date-fns';
 
+/**
+ * Displays a user's points claim history in a clean card table UI.
+ * Fetches data on component mount or when `userId` changes.
+ */
 export default function PointsHistory({ userId }) {
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [history, setHistory] = useState([]); // Stores fetched claim history
+  const [loading, setLoading] = useState(true); // Controls loading skeleton visibility
+  const [error, setError] = useState(''); // Stores any fetch error
 
   useEffect(() => {
     const fetchHistory = async () => {
       if (!userId) return;
-      
+
       try {
         setLoading(true);
         const { data } = await getPointsHistory(userId);
-        setHistory(data);
+        setHistory(data); // Update state with claim history
+        setError('');
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to load history');
       } finally {
@@ -28,6 +33,7 @@ export default function PointsHistory({ userId }) {
     fetchHistory();
   }, [userId]);
 
+  // Display prompt when no user is selected
   if (!userId) {
     return (
       <Card>
@@ -47,16 +53,23 @@ export default function PointsHistory({ userId }) {
         <CardTitle>Points History</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Error State */}
         {error ? (
           <p className="text-red-500">{error}</p>
+
+        // Loading State (skeletons for visual feedback)
         ) : loading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
               <Skeleton key={i} className="h-4 w-full" />
             ))}
           </div>
+
+        // No history found
         ) : history.length === 0 ? (
           <p className="text-muted-foreground">No points history found</p>
+
+        // Render points history table
         ) : (
           <Table>
             <TableHeader>

@@ -7,15 +7,24 @@ import { Loader2, Zap, CheckCircle } from 'lucide-react';
 import { useLeaderboard } from '@/contexts/LeaderboardContext';
 import { motion } from 'framer-motion';
 
+/**
+ * ClaimPointsCard Component
+ *
+ * Allows the user to select a user and claim a random number of points (1–10).
+ * Includes success feedback and error handling with animation.
+ * Also syncs with global leaderboard context to trigger data refresh and log activities.
+ */
 export default function ClaimPointsCard({ onPointsClaimed }) {
   const [selectedUserId, setSelectedUserId] = useState('');
   const [isClaiming, setIsClaiming] = useState(false);
   const [error, setError] = useState('');
   const [lastPointsWon, setLastPointsWon] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
+
   const { triggerRefresh, addActivity } = useLeaderboard();
 
   const handleClaimPoints = async () => {
+    // Ensure a user is selected before claiming
     if (!selectedUserId) {
       setError('Please select a user first');
       return;
@@ -26,21 +35,26 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
     setShowSuccess(false);
 
     try {
+      // Call backend to claim points
       const result = await claimPoints(selectedUserId);
       const points = result.data.points;
-      
+
       setLastPointsWon(points);
       setShowSuccess(true);
-      
-      // Add to activity feed
+
+      // Add action to global activity log
       addActivity({
         user: selectedUserId,
         action: `claimed ${points} points`
       });
-      
+
+      // Optional callback for parent component
       if (onPointsClaimed) onPointsClaimed(result);
+
+      // Refresh leaderboard data
       triggerRefresh();
-      
+
+      // Reset success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to claim points');
@@ -51,7 +65,7 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
 
   return (
     <Card className="relative overflow-hidden">
-      {/* Animated success background */}
+      {/* Subtle animated green background to indicate success */}
       {showSuccess && (
         <motion.div 
           initial={{ opacity: 0 }}
@@ -59,20 +73,22 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
           className="absolute inset-0 bg-green-500"
         />
       )}
-      
+
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Zap className="h-5 w-5 text-yellow-500" />
           <span>Claim Your Points</span>
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
+        {/* User selection dropdown */}
         <UserDropdown 
           selectedUser={selectedUserId}
           onSelect={setSelectedUserId}
         />
-        
+
+        {/* Claim points button */}
         <Button 
           onClick={handleClaimPoints}
           disabled={isClaiming || !selectedUserId}
@@ -91,7 +107,8 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
             </div>
           )}
         </Button>
-        
+
+        {/* Error message if something fails */}
         {error && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -101,7 +118,8 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
             {error}
           </motion.div>
         )}
-        
+
+        {/* Success message when points are claimed */}
         {showSuccess && lastPointsWon && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -116,11 +134,14 @@ export default function ClaimPointsCard({ onPointsClaimed }) {
             </div>
           </motion.div>
         )}
-        
+
+        {/* Instructional note */}
         <p className="text-sm text-muted-foreground text-center">
-          Points will be awarded between 1-10 randomly
+          Points will be awarded between 1–10 randomly
         </p>
       </CardContent>
+
+     
     </Card>
   );
 }

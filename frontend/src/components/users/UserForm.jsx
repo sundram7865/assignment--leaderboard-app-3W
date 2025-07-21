@@ -6,38 +6,42 @@ import { createUser } from '@/services/api';
 import { Loader2 } from 'lucide-react';
 import { useLeaderboard } from '@/contexts/LeaderboardContext.jsx';
 
+// This component handles user creation and leaderboard refresh
 export default function UserForm({ onUserAdded }) {
-  const [name, setName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState(false);
-  const { triggerRefresh } = useLeaderboard(); // Get refresh function from context
+  const [name, setName] = useState("");                 // Controlled input for user's name
+  const [isSubmitting, setIsSubmitting] = useState(false); // Tracks form submission state
+  const [error, setError] = useState("");               // Error message display
+  const [success, setSuccess] = useState(false);        // Success feedback toggle
 
+  const { triggerRefresh } = useLeaderboard();          // Context method to refresh leaderboard
+
+  // Handles form submission logic
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess(false);
-    
+    e.preventDefault();              // Prevent default page reload
+    setError("");                    // Clear previous error
+    setSuccess(false);              // Reset previous success
+
     if (!name.trim()) {
-      setError('Please enter a valid name');
+      setError("Please enter a valid name");
       return;
     }
 
-    setIsSubmitting(true);
-    
+    setIsSubmitting(true); // Disable form during async operation
+
     try {
-      const newUser = await createUser(name.trim());
-      setName('');
-      setSuccess(true);
-      if (onUserAdded) onUserAdded(newUser);
-      triggerRefresh(); // Trigger leaderboard refresh
-      
-      // Reset success message after 3 seconds
+      const newUser = await createUser(name.trim()); // Send name to API
+      setName("");              // Clear input
+      setSuccess(true);         // Show success message
+      if (onUserAdded) onUserAdded(newUser); // Optional callback
+      triggerRefresh();         // Refresh leaderboard UI
+
+      // Auto-hide success message after 3 seconds
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to create user');
+      // Display API or fallback error
+      setError(err.response?.data?.message || "Failed to create user");
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false); // Re-enable form
     }
   };
 
@@ -48,21 +52,26 @@ export default function UserForm({ onUserAdded }) {
         <Input
           id="name"
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => setName(e.target.value)} // Update name state
           placeholder="Enter user name"
-          disabled={isSubmitting}
+          disabled={isSubmitting} // Disable input while submitting
           required
         />
+        {/* Error message */}
         {error && <p className="text-sm text-red-500">{error}</p>}
+
+        {/* Success feedback */}
         {success && (
           <p className="text-sm text-green-500">
             User created successfully! The leaderboard will update shortly.
           </p>
         )}
       </div>
+
+      {/* Submit Button */}
       <Button 
         type="submit" 
-        disabled={isSubmitting || !name.trim()}
+        disabled={isSubmitting || !name.trim()} // Disable if empty or submitting
         className="w-full"
       >
         {isSubmitting ? (
@@ -70,7 +79,9 @@ export default function UserForm({ onUserAdded }) {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             Creating...
           </>
-        ) : 'Add User'}
+        ) : (
+          "Add User"
+        )}
       </Button>
     </form>
   );

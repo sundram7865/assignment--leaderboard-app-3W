@@ -7,6 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLeaderboard } from "@/contexts/LeaderboardContext.jsx";
 import { FaCoins } from "react-icons/fa";
 import clsx from "clsx";
+import { FaGithub, FaTwitter } from "react-icons/fa";
 
 const medalColors = ["bg-yellow-400", "bg-gray-300", "bg-orange-400"];
 
@@ -15,14 +16,15 @@ export default function MiniLeaderboard() {
   const [topPlayers, setTopPlayers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { refreshTrigger } = useLeaderboard();
+  const { refreshTrigger } = useLeaderboard(); // Used to refresh leaderboard on external triggers
 
+  // Fetch leaderboard data
   useEffect(() => {
     const loadTopPlayers = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await fetchTopUsers(10);
+        const response = await fetchTopUsers(10); // Fetch top 10 users
         const players = Array.isArray(response?.data) ? response.data : [];
         setTopPlayers(players);
       } catch (error) {
@@ -38,10 +40,15 @@ export default function MiniLeaderboard() {
 
   return (
     <Card className="bg-gradient-to-br from-pink-50 to-orange-50 border-0 shadow-xl">
-      <CardHeader className="flex flex-row items-center justify-between px-6 pb-4 pt-6">
-        <CardTitle className="text-3xl font-extrabold text-gray-800 tracking-tight">
-          🏆 Today's Top
-        </CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-6 pb-4 pt-6 gap-2">
+        <div className="flex items-center gap-2">
+          <CardTitle className="text-3xl font-extrabold text-gray-800 tracking-tight">
+            🏆 Today's Top
+          </CardTitle>
+        
+        </div>
+
+        {/* View full leaderboard */}
         <Button
           variant="ghost"
           size="sm"
@@ -53,10 +60,14 @@ export default function MiniLeaderboard() {
       </CardHeader>
 
       <CardContent className="px-4 pb-6">
+        {/* Show loading skeletons while fetching */}
         {loading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="flex items-center gap-4 p-3 bg-white rounded-xl shadow-sm">
+              <div
+                key={i}
+                className="flex items-center gap-4 p-3 bg-white rounded-xl shadow-sm"
+              >
                 <Skeleton className="h-10 w-10 rounded-full" />
                 <div className="flex-1 space-y-2">
                   <Skeleton className="h-4 w-3/4" />
@@ -72,8 +83,10 @@ export default function MiniLeaderboard() {
           <div className="text-center py-4 text-gray-500">No players found</div>
         ) : (
           <div className="space-y-3">
+            {/* Render player rows */}
             {topPlayers.map((player, index) => {
               const isTop3 = index < 3;
+
               return (
                 <div
                   key={player._id || index}
@@ -82,12 +95,17 @@ export default function MiniLeaderboard() {
                     isTop3 ? "bg-white border-2 border-yellow-100" : "bg-white"
                   )}
                 >
+                  {/* Avatar */}
                   <div className="relative">
                     <img
                       src={`https://api.dicebear.com/8.x/adventurer/svg?seed=${player.name}`}
                       alt={player.name}
-                      className={clsx("h-12 w-12 rounded-full border-2", isTop3 ? medalColors[index] : "border-gray-300")}
+                      className={clsx(
+                        "h-12 w-12 rounded-full border-2",
+                        isTop3 ? medalColors[index] : "border-gray-300"
+                      )}
                     />
+                    {/* Rank Badge */}
                     {isTop3 && (
                       <span
                         className={clsx(
@@ -104,11 +122,17 @@ export default function MiniLeaderboard() {
                     )}
                   </div>
 
+                  {/* Player Info */}
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 truncate">{player.name}</p>
-                    <p className="text-sm text-gray-500">{player.totalPoints} pts</p>
+                    <p className="font-semibold text-gray-900 truncate">
+                      {player.name}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      {player.totalPoints} pts
+                    </p>
                   </div>
 
+                  {/* Points with icon */}
                   <div className="flex items-center gap-1 text-yellow-500 font-bold text-lg">
                     <FaCoins />
                     {player.totalPoints}

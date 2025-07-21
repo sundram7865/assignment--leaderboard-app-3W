@@ -1,11 +1,18 @@
 import RankBadge from './RankBadge';
 
+/**
+ * Renders a single row in the leaderboard table with user info.
+ * @param {Object} user - The user object with score, avatar, streak, etc.
+ * @param {number} rank - User's current rank in the leaderboard.
+ */
 export default function LeaderboardItem({ user, rank }) {
+  // Handle score fallback with priority
   const score = user.totalPoints || user.score || 0;
   const name = user.name || `Player ${rank}`;
   const avatarUrl = user.avatar || `https://api.dicebear.com/8.x/adventurer/svg?seed=${name}`;
   const streak = user.streak || 0;
 
+  // Returns the badge label and style based on rank
   const statusBadge = () => {
     if (rank <= 3) return { text: 'Top Performer', style: 'bg-green-100 text-green-800' };
     if (rank <= 10) return { text: 'Rising Star', style: 'bg-blue-100 text-blue-800' };
@@ -14,9 +21,12 @@ export default function LeaderboardItem({ user, rank }) {
 
   return (
     <tr className="hover:bg-white/80 transition-all duration-200 even:bg-gray-50/50">
+      {/* Rank Column */}
       <td className="px-6 py-4 whitespace-nowrap">
         <RankBadge rank={rank} />
       </td>
+
+      {/* User Info: Avatar + Name + Level */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center group cursor-pointer">
           <img
@@ -30,11 +40,15 @@ export default function LeaderboardItem({ user, rank }) {
           </div>
         </div>
       </td>
+
+      {/* Score */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="text-sm font-bold text-gray-900 font-mono">
           {score.toLocaleString()}
         </div>
       </td>
+
+      {/* Streak Indicator */}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           {streak > 0 ? (
@@ -47,8 +61,12 @@ export default function LeaderboardItem({ user, rank }) {
           )}
         </div>
       </td>
+
+      {/* Status Badge */}
       <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`px-2.5 py-1 inline-flex text-xs leading-4 font-medium rounded-full ${statusBadge().style}`}>
+        <span
+          className={`px-2.5 py-1 inline-flex text-xs leading-4 font-medium rounded-full ${statusBadge().style}`}
+        >
           {statusBadge().text}
         </span>
       </td>
